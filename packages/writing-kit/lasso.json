@@ -1,0 +1,35 @@
+{
+  "lasso": 1,
+  "id": "writing-kit",
+  "version": "1.0.0",
+  "name": "Writing Kit",
+  "summary": "Bullet-point summaries and a calmer toolbar.",
+  "author": "Lasso",
+  "category": "writing",
+  "icon": {
+    "symbol": "pencil.and.scribble"
+  },
+  "patches": [
+    {
+      "target": "action.ai.summarize.prompt",
+      "set": "Summarize the text as at most 5 short bullet points. Keep names and numbers exactly as written."
+    },
+    {
+      "target": "action.ai.summarize.title",
+      "set": "Bullets"
+    },
+    {
+      "target": "toolbar.hidden",
+      "add": [
+        "lens.search",
+        "color.pick"
+      ]
+    },
+    {
+      "target": "chat.suggestions",
+      "add": {
+        "title": "Make this email shorter"
+      }
+    }
+  ]
+}

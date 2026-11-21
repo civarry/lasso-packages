@@ -1,0 +1,10 @@
+{
+  "lasso": 1, "id": "track-package", "version": "1.0.0", "name": "Track package",
+  "summary": "Opens tracking for a parcel number you lasso.", "author": "Lasso", "category": "productivity",
+  "hosts": ["parcelsapp.com"],
+  "commands": [ {
+    "id": "track", "title": "Track package", "symbol": "shippingbox", "surfaces": ["toolbar"],
+    "input": ["text"], "when": { "detects": ["tracking"] }, "output": "open",
+    "run": { "http": { "url": "https://parcelsapp.com/en/tracking/{{text}}" } }
+  } ]
+}

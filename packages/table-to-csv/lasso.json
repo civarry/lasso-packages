@@ -1,0 +1,10 @@
+{
+  "lasso": 1, "id": "table-to-csv", "version": "1.0.0", "name": "Table to CSV",
+  "summary": "Turns a table you lasso into a CSV file.", "author": "Lasso", "category": "developer",
+  "commands": [ {
+    "id": "to-csv", "title": "Table to CSV", "symbol": "tablecells", "surfaces": ["toolbar"],
+    "input": ["text"], "when": { "match": "\\t|\\S\\s{2,}\\S" }, "output": "file",
+    "run": { "script": { "path": "scripts/to-csv.py", "timeout": 10 } },
+    "test": { "text": "Name  Age\nAda  36\nAlan  41" }
+  } ]
+}

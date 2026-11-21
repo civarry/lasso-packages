@@ -1,0 +1,38 @@
+{
+  "lasso": 1,
+  "id": "notes-search",
+  "version": "1.0.0",
+  "name": "My notes",
+  "summary": "Adds a folder of Markdown notes to Lasso's search.",
+  "author": "Lasso",
+  "category": "knowledge",
+  "settings": [
+    {
+      "id": "notes",
+      "label": "Notes folder",
+      "kind": "folder"
+    }
+  ],
+  "commands": [
+    {
+      "id": "search",
+      "title": "My notes",
+      "surfaces": [
+        "search"
+      ],
+      "input": [
+        "query"
+      ],
+      "output": "results",
+      "run": {
+        "script": {
+          "path": "scripts/search.py",
+          "timeout": 5
+        }
+      },
+      "test": {
+        "query": "meeting"
+      }
+    }
+  ]
+}

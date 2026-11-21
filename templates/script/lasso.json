@@ -1,0 +1,11 @@
+{
+  "lasso": 1, "id": "my-script", "version": "1.0.0", "name": "My Script",
+  "author": "Your name",
+  "summary": "Counts the words in what you lasso.",
+  "commands": [ {
+    "id": "count", "title": "Count words", "symbol": "number", "surfaces": ["toolbar", "slash"],
+    "input": ["text"], "output": "markdown",
+    "run": { "script": { "path": "scripts/count.py", "timeout": 10 } },
+    "test": { "text": "One two three." }
+  } ]
+}

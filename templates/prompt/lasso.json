@@ -1,0 +1,11 @@
+{
+  "lasso": 1, "id": "my-prompt", "version": "1.0.0", "name": "My Prompt",
+  "author": "Your name",
+  "summary": "Explains anything you lasso, simply.",
+  "commands": [ {
+    "id": "explain", "title": "Explain simply", "symbol": "lightbulb", "surfaces": ["toolbar", "slash"],
+    "input": ["text"], "when": { "minLength": 20 }, "output": "markdown",
+    "run": { "prompt": "Explain this simply, in a few short sentences:\n\n{{text}}" },
+    "test": { "text": "Photosynthesis converts light energy into chemical energy stored in glucose." }
+  } ]
+}

@@ -1,0 +1,179 @@
+{
+  "lasso" : 1,
+  "packages" : [
+    {
+      "author" : "Lasso",
+      "category" : "knowledge",
+      "commands" : [
+        {
+          "surfaces" : [
+            "search"
+          ],
+          "title" : "My notes"
+        }
+      ],
+      "id" : "notes-search",
+      "name" : "My notes",
+      "permissions" : {
+        "hosts" : [
+
+        ],
+        "script" : true
+      },
+      "sha256" : "6e064862aed0d5b088007d7c9091ad9dccc6bab2890cda423b1bf36ad075635b",
+      "summary" : "Adds a folder of Markdown notes to Lasso's search.",
+      "url" : "https:\/\/raw.githubusercontent.com\/civarry\/lasso-packages\/main\/dist\/notes-search-1.0.0.lassopkg",
+      "version" : "1.0.0"
+    },
+    {
+      "author" : "Lasso",
+      "category" : "search",
+      "commands" : [
+        {
+          "surfaces" : [
+            "search"
+          ],
+          "title" : "SerpApi"
+        }
+      ],
+      "domain" : "serpapi.com",
+      "id" : "serpapi",
+      "name" : "SerpApi",
+      "permissions" : {
+        "hosts" : [
+          "serpapi.com"
+        ],
+        "key" : true
+      },
+      "sha256" : "1949b73c7b2058ffc490fd527671076283dbf61223bc297a5bff48aff6ad2f5e",
+      "summary" : "Google results, used when other sources come back thin.",
+      "symbol" : "magnifyingglass.circle.fill",
+      "url" : "https:\/\/raw.githubusercontent.com\/civarry\/lasso-packages\/main\/dist\/serpapi-1.0.0.lassopkg",
+      "version" : "1.0.0"
+    },
+    {
+      "author" : "Lasso",
+      "category" : "writing",
+      "commands" : [
+        {
+          "surfaces" : [
+            "toolbar",
+            "slash"
+          ],
+          "title" : "Explain simply"
+        },
+        {
+          "surfaces" : [
+            "toolbar"
+          ],
+          "title" : "Flashcards"
+        }
+      ],
+      "id" : "study-tools",
+      "name" : "Study tools",
+      "permissions" : {
+        "hosts" : [
+
+        ],
+        "model" : true
+      },
+      "sha256" : "19fafceeb6a20a4d2c056dd50259dc003f57a2de7ef0b0ebc7730876b202b463",
+      "summary" : "Explain and flashcards for anything you lasso.",
+      "url" : "https:\/\/raw.githubusercontent.com\/civarry\/lasso-packages\/main\/dist\/study-tools-1.0.0.lassopkg",
+      "version" : "1.0.0"
+    },
+    {
+      "author" : "Lasso",
+      "category" : "developer",
+      "commands" : [
+        {
+          "surfaces" : [
+            "toolbar"
+          ],
+          "title" : "Table to CSV"
+        }
+      ],
+      "id" : "table-to-csv",
+      "name" : "Table to CSV",
+      "permissions" : {
+        "hosts" : [
+
+        ],
+        "script" : true
+      },
+      "sha256" : "010c7e240620b9b5b46ab83ab3e1fe180eb0993112073903cebcd84689bc341a",
+      "summary" : "Turns a table you lasso into a CSV file.",
+      "url" : "https:\/\/raw.githubusercontent.com\/civarry\/lasso-packages\/main\/dist\/table-to-csv-1.0.0.lassopkg",
+      "version" : "1.0.0"
+    },
+    {
+      "author" : "Lasso",
+      "category" : "search",
+      "commands" : [
+        {
+          "surfaces" : [
+            "search"
+          ],
+          "title" : "Tavily"
+        }
+      ],
+      "domain" : "tavily.com",
+      "id" : "tavily",
+      "name" : "Tavily",
+      "permissions" : {
+        "hosts" : [
+          "api.tavily.com"
+        ],
+        "key" : true
+      },
+      "sha256" : "4ff32581fd488eacd90e7d8368cba50a71bb013480c3e7ed0d13a76f3fb2c392",
+      "summary" : "Web search tuned for AI: clean, ranked results.",
+      "symbol" : "magnifyingglass.circle",
+      "url" : "https:\/\/raw.githubusercontent.com\/civarry\/lasso-packages\/main\/dist\/tavily-1.0.0.lassopkg",
+      "version" : "1.0.0"
+    },
+    {
+      "author" : "Lasso",
+      "category" : "productivity",
+      "commands" : [
+        {
+          "surfaces" : [
+            "toolbar"
+          ],
+          "title" : "Track package"
+        }
+      ],
+      "id" : "track-package",
+      "name" : "Track package",
+      "permissions" : {
+        "hosts" : [
+          "parcelsapp.com"
+        ]
+      },
+      "sha256" : "60fbff27cbd26e4c7640f5f6d23f4fb6e81baa4312351f92f363b06b251729e6",
+      "summary" : "Opens tracking for a parcel number you lasso.",
+      "url" : "https:\/\/raw.githubusercontent.com\/civarry\/lasso-packages\/main\/dist\/track-package-1.0.0.lassopkg",
+      "version" : "1.0.0"
+    },
+    {
+      "author" : "Lasso",
+      "category" : "writing",
+      "commands" : [
+
+      ],
+      "id" : "writing-kit",
+      "name" : "Writing Kit",
+      "permissions" : {
+        "hosts" : [
+
+        ],
+        "patches" : true
+      },
+      "sha256" : "1be77281984ce87279045d74bd827ca304236de630e9d3a66aac791d91dc2a18",
+      "summary" : "Bullet-point summaries and a calmer toolbar.",
+      "symbol" : "pencil.and.scribble",
+      "url" : "https:\/\/raw.githubusercontent.com\/civarry\/lasso-packages\/main\/dist\/writing-kit-1.0.0.lassopkg",
+      "version" : "1.0.0"
+    }
+  ]
+}

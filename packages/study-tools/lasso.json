@@ -1,0 +1,12 @@
+{
+  "lasso": 1, "id": "study-tools", "version": "1.0.0", "name": "Study tools",
+  "summary": "Explain and flashcards for anything you lasso.", "author": "Lasso", "category": "writing",
+  "commands": [
+    { "id": "explain", "title": "Explain simply", "symbol": "lightbulb", "surfaces": ["toolbar", "slash"],
+      "input": ["text"], "when": { "minLength": 40 }, "output": "markdown",
+      "run": { "prompt": "Explain this so a 10-year-old understands it, in at most 5 sentences:\n\n{{text}}" } },
+    { "id": "flashcards", "title": "Flashcards", "symbol": "rectangle.on.rectangle", "surfaces": ["toolbar"],
+      "input": ["text"], "when": { "minLength": 200 }, "output": "markdown",
+      "run": { "prompt": "Make up to 8 flashcards from this text, each as **Q:** question then **A:** answer.\n\n{{text}}" } }
+  ]
+}

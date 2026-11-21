@@ -1,0 +1,10 @@
+{
+  "lasso": 1, "id": "my-shortcut", "version": "1.0.0", "name": "My Shortcut",
+  "author": "Your name",
+  "summary": "Sends what you lasso to one of your Shortcuts.",
+  "commands": [ {
+    "id": "run", "title": "My Shortcut", "symbol": "square.on.square", "surfaces": ["send"],
+    "input": ["text"], "output": "notify",
+    "run": { "shortcut": { "name": "My Shortcut from Lasso", "offline": false } }
+  } ]
+}

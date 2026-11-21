@@ -1,0 +1,16 @@
+{
+  "lasso": 1, "id": "my-send", "version": "1.0.0", "name": "My Send",
+  "author": "Your name",
+  "summary": "Sends what you lasso to example.com.",
+  "hosts": ["api.example.com"],
+  "settings": [ { "id": "key", "label": "API key", "kind": "secret" } ],
+  "commands": [ {
+    "id": "send", "title": "Send to My Send", "symbol": "paperplane", "surfaces": ["send"],
+    "input": ["text"], "output": "notify",
+    "run": {
+      "http": { "method": "POST", "url": "https://api.example.com/items",
+                "headers": { "Authorization": "Bearer {{settings.key}}" }, "json": { "text": "{{text}}" } },
+      "answer": "message"
+    }
+  } ]
+}
