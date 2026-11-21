@@ -1,10 +1,11 @@
 {
-  "lasso": 1, "id": "table-to-csv", "version": "1.0.0", "name": "Table to CSV",
+  "lasso": 1, "id": "table-to-csv", "version": "1.1.0", "name": "Table to CSV",
   "summary": "Turns a table you lasso into a CSV file.", "author": "Lasso", "category": "developer",
+  "minLasso": "0.24.0",
   "commands": [ {
     "id": "to-csv", "title": "Table to CSV", "symbol": "tablecells", "surfaces": ["toolbar"],
-    "input": ["text"], "when": { "match": "\\t|\\S\\s{2,}\\S" }, "output": "file",
-    "run": { "script": { "path": "scripts/to-csv.py", "timeout": 10 } },
-    "test": { "text": "Name  Age\nAda  36\nAlan  41" }
+    "input": ["table"], "when": { "detects": ["table"] }, "output": "file",
+    "howTo": "Lasso a table on screen (a spreadsheet, a web page, a screenshot), then click **Table to CSV**. The file shows in Finder.",
+    "run": { "script": { "path": "scripts/to-csv.py", "timeout": 10 } }
   } ]
 }
