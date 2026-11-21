@@ -94,6 +94,7 @@
         }
       ],
       "id" : "table-to-csv",
+      "minLasso" : "0.24.0",
       "name" : "Table to CSV",
       "permissions" : {
         "hosts" : [
@@ -101,10 +102,10 @@
         ],
         "script" : true
       },
-      "sha256" : "010c7e240620b9b5b46ab83ab3e1fe180eb0993112073903cebcd84689bc341a",
+      "sha256" : "6ea4b13d79a10c7e8a594b3c7e3b5f14eabbad88814df557596199e413ba70d3",
       "summary" : "Turns a table you lasso into a CSV file.",
-      "url" : "https:\/\/raw.githubusercontent.com\/civarry\/lasso-packages\/main\/dist\/table-to-csv-1.0.0.lassopkg",
-      "version" : "1.0.0"
+      "url" : "https:\/\/raw.githubusercontent.com\/civarry\/lasso-packages\/main\/dist\/table-to-csv-1.1.0.lassopkg",
+      "version" : "1.1.0"
     },
     {
       "author" : "Lasso",
