@@ -1,7 +1,7 @@
 {
   "lasso": 1,
   "id": "notes-search",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "name": "My notes",
   "summary": "Lets chat answer from a folder of your Markdown notes.",
   "author": "Lasso",
