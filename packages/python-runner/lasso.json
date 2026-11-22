@@ -1,0 +1,22 @@
+{
+  "lasso": 1, "id": "python-runner", "version": "1.0.0", "name": "Run Python",
+  "summary": "Runs Python from chat on this Mac, and draws turtle pictures.", "author": "Lasso", "category": "developer",
+  "icon": { "symbol": "chevron.left.forwardslash.chevron.right" },
+  "minLasso": "0.21.0",
+  "requires": [ { "command": "python3", "install": "https://www.python.org/downloads/macos/" } ],
+  "commands": [
+    {
+      "id": "run", "title": "Run Python", "symbol": "play", "surfaces": ["slash", "tool"], "input": ["text"], "output": "markdown",
+      "howTo": "Type **/run** to run the Python in the last reply, or **/run** and your code. It answers with what the code printed.",
+      "tool": { "name": "run_python", "description": "Run Python 3 code on this Mac in a sandbox (no internet, 20 s limit). Returns what it printed and any error.", "args": { "text": "string" } },
+      "run": { "script": { "path": "scripts/run.py", "timeout": 30 } },
+      "test": { "text": "print(sum(range(10)))" }
+    },
+    {
+      "id": "draw", "title": "Draw with Python", "symbol": "scribble.variable", "surfaces": ["slash"], "input": ["text"], "output": "image",
+      "howTo": "Type **/draw** after a reply with turtle code, or **/draw** and your code. The drawing opens as a picture.",
+      "run": { "script": { "path": "scripts/run.py", "timeout": 30 } },
+      "test": { "text": "import turtle\nturtle.circle(80)" }
+    }
+  ]
+}
