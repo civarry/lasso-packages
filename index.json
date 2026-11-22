@@ -10,9 +10,16 @@
             "search"
           ],
           "title" : "My notes"
+        },
+        {
+          "surfaces" : [
+
+          ],
+          "title" : "What's in it"
         }
       ],
       "id" : "notes-search",
+      "minLasso" : "0.27.0",
       "name" : "My notes",
       "permissions" : {
         "hosts" : [
@@ -20,10 +27,10 @@
         ],
         "script" : true
       },
-      "sha256" : "551392fd9abea320b652ff764e58cd19c752a7caaf500eb90a537bb6593558f4",
+      "sha256" : "150315cee277105a27d9c9cc580eee6ab61efbe681a1adf9a1978da37e268849",
       "summary" : "Lets chat answer from a folder of your Markdown notes.",
-      "url" : "https:\/\/raw.githubusercontent.com\/civarry\/lasso-packages\/main\/dist\/notes-search-1.3.0.lassopkg",
-      "version" : "1.3.0"
+      "url" : "https:\/\/raw.githubusercontent.com\/civarry\/lasso-packages\/main\/dist\/notes-search-1.5.0.lassopkg",
+      "version" : "1.5.0"
     },
     {
       "author" : "Lasso",
