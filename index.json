@@ -34,6 +34,39 @@
     },
     {
       "author" : "Lasso",
+      "category" : "developer",
+      "commands" : [
+        {
+          "surfaces" : [
+            "slash",
+            "tool"
+          ],
+          "title" : "Run Python"
+        },
+        {
+          "surfaces" : [
+            "slash"
+          ],
+          "title" : "Draw with Python"
+        }
+      ],
+      "id" : "python-runner",
+      "minLasso" : "0.21.0",
+      "name" : "Run Python",
+      "permissions" : {
+        "hosts" : [
+
+        ],
+        "script" : true
+      },
+      "sha256" : "4bf38c8cec380c1e356f85144b1c79726d11707f6e571ec429d3901c9b88bafe",
+      "summary" : "Runs Python from chat on this Mac, and draws turtle pictures.",
+      "symbol" : "chevron.left.forwardslash.chevron.right",
+      "url" : "https:\/\/raw.githubusercontent.com\/civarry\/lasso-packages\/main\/dist\/python-runner-1.0.0.lassopkg",
+      "version" : "1.0.0"
+    },
+    {
+      "author" : "Lasso",
       "category" : "search",
       "commands" : [
         {
