@@ -220,7 +220,8 @@
                 "slash",
                 "tool",
                 "search",
-                "hotkey"
+                "hotkey",
+                "event"
               ]
             }
           },
@@ -232,7 +233,9 @@
                 "image",
                 "source",
                 "query",
-                "args"
+                "args",
+                "table",
+                "lines"
               ]
             }
           },
@@ -255,7 +258,8 @@
                     "date",
                     "flight",
                     "tracking",
-                    "money"
+                    "money",
+                    "table"
                   ]
                 }
               },
@@ -502,6 +506,33 @@
                 "type": "string"
               }
             }
+          },
+          "howTo": {
+            "type": "string",
+            "maxLength": 140,
+            "description": "One line on how to use it, shown in How to use it (Markdown bold allowed)"
+          },
+          "on": {
+            "type": "array",
+            "items": {
+              "enum": [
+                "capture",
+                "reply"
+              ]
+            },
+            "minItems": 1,
+            "description": "For the event surface: what it runs on"
+          },
+          "hook": {
+            "enum": [
+              "source/1",
+              "describe/1"
+            ],
+            "description": "A hook (docs/PACKAGE-HOOKS.md): source/1 on a search command gets the whole turn; describe/1 writes What's in it"
+          },
+          "ranks": {
+            "type": "boolean",
+            "description": "With source/1: the command judges its results' relevance instead of Lasso's word gate"
           }
         }
       }
@@ -531,7 +562,18 @@
               "toolbar.order",
               "toolbar.hidden",
               "chat.suggestions",
-              "chat.instructions"
+              "chat.instructions",
+              "chat.greeting",
+              "chat.placeholder",
+              "action.ocr.copy.symbol",
+              "action.translate.symbol",
+              "action.ai.grammar.symbol",
+              "action.ai.summarize.symbol",
+              "action.ai.ask.symbol",
+              "action.qr.open.symbol",
+              "action.color.pick.symbol",
+              "action.identify.symbol",
+              "action.lens.search.symbol"
             ],
             "description": "What to change. The list with Lasso's own values is in docs/patch-targets.md."
           },
