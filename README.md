@@ -19,7 +19,8 @@ installed without your click.
 | [Track package](packages/track-package) | Opens tracking for a parcel number you lasso | parcelsapp.com (opens a page) |
 | [Table to CSV](packages/table-to-csv) | A table you lasso as a CSV file | Nothing: a sandboxed script |
 | [My notes](packages/notes-search) | Searches a folder of your notes | Nothing: a sandboxed script |
-| [Run Python](packages/python-runner) | /run and /draw: runs the Python in chat, draws turtle pictures | Nothing: a sandboxed script |
+| [Run Python](packages/python-runner) | Run on Python code blocks and /run: runs the Python in chat, shows its charts and pages | Nothing: a sandboxed script (Install … downloads from PyPI) |
+| [Preview HTML](packages/html-preview) | Preview on html and svg code blocks: shows the page live in chat | Nothing |
 | [Writing Kit](packages/writing-kit) | Bullet-point summaries, a calmer toolbar | Nothing: it changes Lasso itself |
 
 ## How it's checked

@@ -1,15 +1,15 @@
 {
   "lasso": 1,
   "id": "python-runner",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "name": "Run Python",
-  "summary": "Runs Python from chat on this Mac, and draws turtle pictures.",
+  "summary": "Runs Python from chat on this Mac, and shows the pictures and pages it makes.",
   "author": "Lasso",
   "category": "developer",
   "icon": {
     "symbol": "chevron.left.forwardslash.chevron.right"
   },
-  "minLasso": "0.28.0",
+  "minLasso": "0.29.0",
   "requires": [
     {
       "command": "python3",
@@ -71,28 +71,6 @@
       }
     },
     {
-      "id": "draw",
-      "title": "Draw with Python",
-      "symbol": "scribble.variable",
-      "surfaces": [
-        "slash"
-      ],
-      "input": [
-        "text"
-      ],
-      "output": "image",
-      "howTo": "Type **/draw** after a reply with turtle code, or **/draw** and your code. The drawing opens as a picture.",
-      "run": {
-        "script": {
-          "path": "scripts/run.py",
-          "timeout": 30
-        }
-      },
-      "test": {
-        "text": "import turtle\nturtle.circle(80)"
-      }
-    },
-    {
       "id": "install",
       "title": "Install packages",
       "surfaces": [],
@@ -112,7 +90,7 @@
   "patches": [
     {
       "target": "chat.instructions",
-      "add": "The user can run Python from this chat: each python code block in your reply has a Run button that runs it on their Mac and shows the output in the block (turtle drawings as a picture), and /run runs your last reply's code. When they ask you to run code, say so instead of saying you can't, and put runnable code in one python block."
+      "add": "Each python code block in your reply has a Run button that runs it on the user's Mac and shows the output in the block; /run runs your last reply's code. When asked to run code, say so instead of saying you can't, and put runnable code in one python block. No windows open (no plt.show(), tkinter or turtle): to show a chart, save it to a file, like plt.savefig(\"chart.png\") or an .html page, and Run shows it."
     }
   ]
 }

@@ -1,0 +1,44 @@
+{
+  "lasso": 1,
+  "id": "html-preview",
+  "version": "1.0.0",
+  "name": "Preview HTML",
+  "summary": "Shows HTML and SVG from chat as a live page, right in the code block.",
+  "author": "Lasso",
+  "category": "developer",
+  "icon": {
+    "symbol": "eye"
+  },
+  "minLasso": "0.29.0",
+  "commands": [
+    {
+      "id": "preview",
+      "title": "Preview",
+      "symbol": "eye",
+      "surfaces": [
+        "code"
+      ],
+      "languages": [
+        "html",
+        "htm",
+        "svg"
+      ],
+      "input": [
+        "text"
+      ],
+      "output": "markdown",
+      "run": {
+        "script": {
+          "path": "scripts/preview.sh",
+          "timeout": 10
+        }
+      }
+    }
+  ],
+  "patches": [
+    {
+      "target": "chat.instructions",
+      "add": "Each html or svg code block in your reply has a Preview button that shows it as a live page in the chat. When the user asks for something visual or interactive (a chart, a diagram, a page, a small tool or game), answer with one complete, self-contained html block: CSS and JavaScript inline, data inline, no other files. The page has no internet except scripts and styles from https://cdnjs.cloudflare.com, so load any library from there."
+    }
+  ]
+}
