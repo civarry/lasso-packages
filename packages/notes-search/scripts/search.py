@@ -19,15 +19,24 @@ BUDGET = 2.5                      # seconds for reading changed notes; Lasso sto
 MAX_READ = 200_000                # characters read from one note
 EXTENSIONS = (".md", ".markdown", ".txt")
 SKIP_DIRS = {"node_modules", ".git", ".obsidian", ".trash", ".Trash", "__pycache__"}
-INDEX_VERSION = 2
+INDEX_VERSION = 5
 WORD = re.compile(r"\w+")
 
-def stem(word):
+def stem_once(word):
     for suffix in ("ing", "ed", "es", "s"):
         if len(word) > len(suffix) + 3 and word.endswith(suffix):
             word = word[: -len(suffix)]
             break
     return word[:-1] if len(word) > 4 and word.endswith("e") else word
+
+def stem(word):
+    """Lasso's light stem, applied until nothing changes, so "meetings" and "meeting" both give "meet"."""
+    for _ in range(3):
+        shorter = stem_once(word)
+        if shorter == word:
+            break
+        word = shorter
+    return word
 
 def stems(text):
     return [stem(w) for w in WORD.findall(text.lower()) if len(w) > 2]
@@ -54,7 +63,7 @@ def read(path):
     with open(path, encoding="utf-8", errors="ignore") as f:
         return f.read(MAX_READ)
 
-def index_note(path, name):
+def index_note(path, name, rel=""):
     text = read(path)
     title, body = split_front_matter(text)
     headings = [h for h in (heading(l) for l in body.splitlines()) if h]
@@ -62,8 +71,10 @@ def index_note(path, name):
     counts = {}
     for s in stems(body):
         counts[s] = counts.get(s, 0) + 1
-    strong = set(stems(title + " " + os.path.splitext(name)[0] + " " + " ".join(headings)))
-    return {"title": title, "len": sum(counts.values()), "tf": counts, "strong": strong}
+    # The title, file name, folder names ("meetings/") and headings say what a note is about.
+    strong = set(stems(" ".join([title, os.path.splitext(rel or name)[0].replace(os.sep, " ")] + headings)))
+    named = set(stems(" ".join([title, os.path.splitext(rel or name)[0].replace(os.sep, " ")])))
+    return {"title": title, "len": sum(counts.values()), "tf": counts, "strong": strong, "named": named}
 
 def load_index(home, folder):
     try:
@@ -110,7 +121,7 @@ def refresh(index, folder):
         if time.monotonic() - START > BUDGET:
             break
         try:
-            note = index_note(path, name)
+            note = index_note(path, name, rel)
         except OSError:
             continue
         note.update(mtime=st.st_mtime, size=st.st_size)
@@ -122,12 +133,16 @@ def refresh(index, folder):
     return changed
 
 def rank(index, words):
+    """Notes by BM25, scaled by how much of the question's weight they cover, so a rare word
+    ("kestrel", "adobo", "csv") counts for more than common ones ("python", "file")."""
     notes = index["notes"]
     total = len(notes)
     if not total:
-        return []
+        return [], {}
     average = sum(n["len"] for n in notes.values()) / total or 1
     df = {w: sum(1 for n in notes.values() if w in n["tf"] or w in n["strong"]) for w in words}
+    idf = {w: math.log(1 + (total - df[w] + 0.5) / (df[w] + 0.5)) for w in words}
+    weight = sum(idf.values()) or 1
     need = min(2, len(words))
     scored = []
     for rel, note in notes.items():
@@ -136,14 +151,33 @@ def rank(index, words):
             continue
         score = 0.0
         for w in found:
-            idf = math.log(1 + (total - df[w] + 0.5) / (df[w] + 0.5))
             tf = note["tf"].get(w, 0)
-            score += idf * (tf * 2.2) / (tf + 1.2 * (0.25 + 0.75 * note["len"] / average)) if tf else 0
-            if w in note["strong"]:
-                score += idf * 1.5
-        scored.append((len(found), score, note["mtime"], rel, note, found))
-    scored.sort(key=lambda s: (-s[0], -s[1], -s[2]))
-    return scored
+            if tf:
+                score += idf[w] * (tf * 2.2) / (tf + 1.2 * (0.25 + 0.75 * note["len"] / average))
+            if w in note["named"]:
+                score += idf[w] * 4.0      # the note is about it: its title, file or folder name
+            elif w in note["strong"]:
+                score += idf[w] * 1.5      # a heading in it
+        coverage = sum(idf[w] for w in found) / weight
+        scored.append((score * (0.25 + coverage), note["mtime"], rel, note, found))
+    scored.sort(key=lambda s: (-s[0], -s[1]))
+    return scored, idf
+
+def select(scored, idf, count=5):
+    """The best note, then notes that cover the question's words the ones before didn't: "Kestrel's
+    Python version and lazy imports" gets the Kestrel note and the lazy imports page, not three pages
+    about lazy imports."""
+    pool, picked, covered = scored[:40], [], set()
+    weight = sum(idf.values()) or 1
+    while pool and len(picked) < count:
+        def value(s):
+            new = sum(idf[w] for w in s[4] if w not in covered) / weight
+            return s[0] * (0.5 + new)
+        best = max(pool, key=value)
+        pool.remove(best)
+        picked.append(best)
+        covered.update(best[4])
+    return picked
 
 def passage(text, found, title="", limit=380):
     """The block that holds the most of the words, with the heading it's under. A word already in the
@@ -202,7 +236,8 @@ def main():
     if refresh(index, folder):
         save_index(home, index)
     results = []
-    for _, _, mtime, rel, note, found in rank(index, words)[:5]:
+    scored, idf = rank(index, words)
+    for _, mtime, rel, note, found in select(scored, idf):
         try:
             snippet = passage(read(os.path.join(folder, rel)), found, note["title"])
         except OSError:
