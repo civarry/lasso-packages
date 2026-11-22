@@ -1,19 +1,18 @@
 #!/usr/bin/env python3
-# Runs Python from Lasso's chat. Lasso sends {"command": "run" | "draw", "text": ...} on standard input:
-# the text after /run or /draw, or the last reply (a tool call's "text" argument for the model).
+# Runs Python from Lasso's chat. Lasso sends {"command": "block" | "run", "text": ...} on standard input:
+# a code block's code (Run), or the text after /run or the last reply (a tool call's "text" argument).
 #
 # - The code: the ```python blocks in the text (a block whose first line is "# name.py" is saved as that
 #   file, so a reply's helper module can be imported), and the last unnamed block (or main.py) runs.
 #   No blocks: the whole text is the code.
 # - It runs with this Mac's python3, in Lasso's sandbox (no internet, only its own folders), for at
 #   most 20 seconds, in a new folder under ~/LassoWorkspace/python-runner/ where it can write files.
-# - /run answers with what it printed, its error and the files it made. /draw also gives it a turtle
-#   that draws to a picture (Lasso's sandbox can't open windows), and answers with the picture.
+# - It answers with what it printed, its error and the files it made. Run also shows a picture it
+#   saved (.png, .jpg) or a page it wrote (.html, .svg: a chart from plotly, say) in the code block.
 import json, os, pwd, re, subprocess, sys, time
 
 LIMIT = 20
 MAX_OUTPUT = 3000
-HERE = os.path.dirname(os.path.abspath(__file__))
 
 def blocks(text):
     """(name or None, code) for each fenced Python block, or the whole text when there are none."""
@@ -25,7 +24,7 @@ def blocks(text):
         m = re.match(r"#\s*(?:file:\s*)?([\w./-]+\.py)\s*$", first)
         found.append((m.group(1) if m else None, body))
     if not found:
-        code = re.sub(r"^\s*/(run|draw)\b", "", text).strip()
+        code = re.sub(r"^\s*/run\b", "", text).strip()
         return [(None, code)] if code else []
     return found
 
@@ -103,13 +102,8 @@ def run_block(data):
         f.write(code)
     python = environment_python()
     progress("Initializing environment" if python == sys.executable else "Using the installed packages")
-    drawing = bool(re.search(r"^\s*(import turtle|from turtle import)", code, re.M))
     before = set(os.listdir(folder))
     env = dict(os.environ, PYTHONDONTWRITEBYTECODE="1", MPLBACKEND="Agg", PYTHONUNBUFFERED="1")
-    if drawing:
-        env["PYTHONPATH"] = os.path.join(HERE, "headless")
-        env["LASSO_DRAWING"] = os.path.join(folder, "drawing")
-        progress("Drawing with turtle (shown as a picture)")
     progress("Running code")
     try:
         done = subprocess.run([python, "-X", "utf8", main_file], cwd=folder, env=env, stdin=subprocess.DEVNULL,
@@ -126,17 +120,21 @@ def run_block(data):
     if late:
         text += f"\nStopped after {LIMIT} s."
     if not text and status == 0:
-        text = "" if drawing else "(It printed nothing.)"
-    made = sorted(f for f in set(os.listdir(folder)) - before if f not in ("drawing.png",) and not f.startswith("."))
+        text = "(It printed nothing.)"
+    made = sorted(f for f in set(os.listdir(folder)) - before if not f.startswith("."))
     if made:
         text += ("\n" if text else "") + "Made " + ", ".join(made[:10]) + " in " + folder.replace(pwd.getpwuid(os.getuid()).pw_dir, "~", 1)
     answer = {"console": text, "failed": status != 0}
-    picture = os.path.join(folder, "drawing.png")
-    images = [os.path.join(folder, f) for f in made if f.lower().endswith((".png", ".jpg", ".jpeg"))]
-    if os.path.exists(picture):
+    def newest(*kinds):
+        found = [os.path.join(folder, f) for f in made if f.lower().endswith(kinds)]
+        return max(found, key=os.path.getmtime) if found else None
+    page, picture = newest(".html", ".htm", ".svg"), newest(".png", ".jpg", ".jpeg")
+    if page:
+        answer["html"] = page
+    elif picture:
         answer["image"] = picture
-    elif images:
-        answer["image"] = max(images, key=os.path.getmtime)
+    if re.search(r"\b(tkinter|_tkinter|turtle)\b", err):
+        answer["console"] += "\nWindows can't open from Lasso's sandbox. To see a drawing, save it as a picture or a page (an .html or .svg file): Run shows it here."
     missing = re.search(r"ModuleNotFoundError: No module named '([\w.]+)'", err)
     if missing:
         module = missing.group(1).split(".")[0]
@@ -168,14 +166,12 @@ def main():
     if data.get("command") == "block":
         run_block(data)
         return
-    drawing = data.get("command") == "draw"
     text = data.get("text", "")
     folder = run_folder()
-    typed = re.sub(r"^\s*/(run|draw)\b", "", text).strip()
+    typed = re.sub(r"^\s*/run\b", "", text).strip()
     if looks_like_words(typed):
         os.rmdir(folder)
-        command = "/draw" if drawing else "/run"
-        print(json.dumps({"text": f"“{typed}” isn't Python. Type **{command}** on its own to run the code in the last reply, or **{command}** followed by your code."}))
+        print(json.dumps({"text": f"“{typed}” isn't Python. Type **/run** on its own to run the code in the last reply, or **/run** followed by your code."}))
         return
     path = prepare(text, folder)
     if not path:
@@ -183,9 +179,6 @@ def main():
         return
     before = set(os.listdir(folder))
     env = dict(os.environ, PYTHONDONTWRITEBYTECODE="1", MPLBACKEND="Agg", PYTHONUNBUFFERED="1")
-    if drawing:
-        env["PYTHONPATH"] = os.path.join(HERE, "headless")
-        env["LASSO_DRAWING"] = os.path.join(folder, "drawing")
     started = time.monotonic()
     try:
         done = subprocess.run([environment_python(), "-X", "utf8", path], cwd=folder, env=env, stdin=subprocess.DEVNULL,
@@ -199,16 +192,7 @@ def main():
     # Tracebacks name the file, not the run folder's long path.
     err = err.replace(folder + os.sep, "")
     made = sorted(f for f in set(os.listdir(folder)) - before
-                  if f not in ("main.py", "drawing.pdf") and not f.startswith("."))
-    if drawing:
-        picture = os.path.join(folder, "drawing.png")
-        images = [os.path.join(folder, f) for f in made if f.lower().endswith((".png", ".jpg", ".jpeg"))]
-        if os.path.exists(picture) or images:
-            print(json.dumps({"path": picture if os.path.exists(picture) else max(images, key=os.path.getmtime)}))
-            return
-        why = clip(err) if err.strip() else "It didn't draw anything with turtle or save a picture."
-        print(json.dumps({"text": "Nothing to show.\n\n" + fence(why)}))
-        return
+                  if f != "main.py" and not f.startswith("."))
     version = "Python " + sys.version.split()[0]
     head = f"**Ran {os.path.basename(path)}** · {version} · {seconds:.2f} s"
     lines = [head]
@@ -224,7 +208,7 @@ def main():
         if "EOFError" in err:
             lines.append("It asked for input, which chat can't type in yet: put the values in the code instead.")
         if re.search(r"\b(tkinter|_tkinter|turtle)\b", err):
-            lines.append("Windows can't open from Lasso's sandbox. For turtle drawings, use **/draw**: it shows the picture.")
+            lines.append("Windows can't open from Lasso's sandbox. Save a drawing as a picture or a page instead, and use the code block's **Run** to see it.")
     if made:
         place = folder.replace(pwd.getpwuid(os.getuid()).pw_dir, "~", 1)
         lines.append("Made " + ", ".join(f"`{f}`" for f in made[:10]) + f" in `{place}`.")
