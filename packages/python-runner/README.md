@@ -7,7 +7,12 @@ Runs the Python that's written in Lasso's chat, on your Mac, and shows the resul
     code. The answer shows what it printed, its error if any, and the files it made.
   - **/draw** does the same for turtle code and shows the drawing as a picture. Lasso's sandbox can't
     open windows, so turtle draws to an image instead: keys, clicks and animation don't run, and you
-    see the drawing as it is when the program ends.
+    see the drawing as it is when the program ends (a game shows its first screen). Turtles show in
+    their shapes, `clear()` erases a turtle's drawing, and characters the font lacks (emoji) are left out.
+  - Type **/run** on its own: the words after it are run as code, so "/run the code above" is answered
+    with how to run it instead.
+  - Chat knows about it: the package adds one line to the chat model's instructions, so it suggests
+    **/run** rather than saying it can't run code.
   - A reply can have several files: a code block whose first line is `# helper.py` is saved as
     `helper.py`, so the block that runs can import it.
   - The Agent (and chat models that use tools) can run code with the `run_python` tool. Lasso shows

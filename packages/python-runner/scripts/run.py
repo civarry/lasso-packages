@@ -29,6 +29,17 @@ def blocks(text):
         return [(None, code)] if code else []
     return found
 
+def looks_like_words(text):
+    """'the code above', 'run it please': words, not Python (no code block, and not valid Python)."""
+    if "```" in text:
+        return False
+    try:
+        compile(text, "main.py", "exec")
+        return False
+    except SyntaxError:
+        words = re.findall(r"[A-Za-z']+", text)
+        return len(words) >= 2 and not re.search(r"[=():\[\]{}]", text)
+
 def prepare(text, folder):
     """Writes the blocks into the folder; returns the file to run."""
     parts = blocks(text)
@@ -76,6 +87,12 @@ def main():
         folder, n = os.path.join(root, f"{stamp}-{n}"), n + 1
     os.makedirs(folder)
     folder = os.path.realpath(folder)
+    typed = re.sub(r"^\s*/(run|draw)\b", "", text).strip()
+    if looks_like_words(typed):
+        os.rmdir(folder)
+        command = "/draw" if drawing else "/run"
+        print(json.dumps({"text": f"“{typed}” isn't Python. Type **{command}** on its own to run the code in the last reply, or **{command}** followed by your code."}))
+        return
     path = prepare(text, folder)
     if not path:
         print(json.dumps({"text": "There's no Python to run. Type **/run** after a reply with a Python code block, or **/run** and the code."}))

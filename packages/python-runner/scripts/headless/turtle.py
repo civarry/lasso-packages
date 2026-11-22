@@ -93,8 +93,22 @@ def Screen():
 
 _turtles = []
 
+# The standard module's shapes, pointing along +y; drawn turned to the turtle's heading.
+_SHAPES = {
+    "classic": [(0, 0), (-5, -9), (0, -7), (5, -9)],
+    "arrow": [(-10, 0), (10, 0), (0, 10)],
+    "turtle": [(0, 16), (-2, 14), (-1, 10), (-4, 7), (-7, 9), (-9, 8), (-6, 5), (-7, 1), (-5, -3), (-8, -6), (-6, -8),
+               (-4, -5), (0, -7), (4, -5), (6, -8), (8, -6), (5, -3), (7, 1), (6, 5), (9, 8), (7, 9), (4, 7), (1, 10), (2, 14)],
+    "triangle": [(10, -5.77), (0, 11.55), (-10, -5.77)],
+    "square": [(10, -10), (10, 10), (-10, 10), (-10, -10)],
+    "circle": [(10 * math.cos(math.radians(a)), 10 * math.sin(math.radians(a))) for a in range(0, 360, 20)],
+}
+
 class Turtle:
     def __init__(self, shape="classic", undobuffersize=1000, visible=True):
+        self._shape = shape if shape in _SHAPES else "classic"
+        self._visible = bool(visible)
+        self._stretch = 1.0
         self._x = self._y = 0.0
         self._heading = 0.0
         self._down = True
@@ -110,7 +124,7 @@ class Turtle:
         if self._down:
             if self._path is None:
                 self._path = [(self._x, self._y)]
-                _canvas.items.append(["line", self._path, self._pen, self._width])
+                _canvas.items.append(["line", self._path, self._pen, self._width, self])
             self._path.append((x, y))
         else:
             self._path = None
@@ -157,10 +171,10 @@ class Turtle:
     def dot(self, size=None, *color):
         size = size or max(self._width + 4, self._width * 2)
         c = _rgb(color[0] if len(color) == 1 else color, self._pen) if color else self._pen
-        _canvas.items.append(["dot", (self._x, self._y), size, c])
+        _canvas.items.append(["dot", (self._x, self._y), size, c, self])
 
     def stamp(self):
-        _canvas.items.append(["dot", (self._x, self._y), 8, self._fill])
+        _canvas.items.append(["dot", (self._x, self._y), 8, self._fill, self])
         return len(_canvas.items)
 
     # Pen
@@ -191,14 +205,14 @@ class Turtle:
     def end_fill(self):
         if self._filling and len(self._filling) > 2:
             # Under the outline drawn while filling, over everything drawn before it.
-            _canvas.items.insert(self._fill_at, ["fill", list(self._filling), self._fill])
+            _canvas.items.insert(min(self._fill_at, len(_canvas.items)), ["fill", list(self._filling), self._fill, self])
         self._filling = None
     def filling(self): return self._filling is not None
 
     def write(self, arg, move=False, align="left", font=("Arial", 8, "normal")):
         size = font[1] if isinstance(font, (tuple, list)) and len(font) > 1 else 8
         bold = isinstance(font, (tuple, list)) and len(font) > 2 and "bold" in str(font[2]).lower()
-        _canvas.items.append(["text", (self._x, self._y), str(arg), align, float(size), self._pen, bold])
+        _canvas.items.append(["text", (self._x, self._y), str(arg), align, float(size), self._pen, bold, self])
 
     # State
     def position(self): return Vec2D(self._x, self._y)
@@ -212,18 +226,26 @@ class Turtle:
     def towards(self, x, y=None):
         if y is None: x, y = x
         return math.degrees(math.atan2(y - self._y, x - self._x)) % 360
-    def clear(self): pass
-    def reset(self): self.__init__()
+    def clear(self):
+        """Erases this turtle's drawing, as in the standard module; others' stay."""
+        _canvas.items[:] = [i for i in _canvas.items if i[-1] is not self]
+        self._path = None
+    def reset(self):
+        self.clear()
+        self.__init__()
     # How it looks and moves on screen: nothing to draw.
-    def shape(self, *a, **k): return "classic"
-    def shapesize(self, *a, **k): pass
+    def shape(self, name=None):
+        if name is None: return self._shape
+        if name in _SHAPES: self._shape = name
+    def shapesize(self, stretch_wid=None, stretch_len=None, outline=None):
+        if stretch_wid: self._stretch = float(stretch_wid)
     turtlesize = shapesize
     def speed(self, *a): return 0
-    def hideturtle(self): pass
+    def hideturtle(self): self._visible = False
     ht = hideturtle
-    def showturtle(self): pass
+    def showturtle(self): self._visible = True
     st = showturtle
-    def isvisible(self): return False
+    def isvisible(self): return self._visible
     def onclick(self, *a, **k): pass
     onrelease = ondrag = onclick
     def getscreen(self): return _screen
@@ -260,10 +282,20 @@ class Terminator(Exception):
 
 def _render(path):
     import _lassodraw
-    _lassodraw.render(_canvas.items, _canvas.width, _canvas.height, _canvas.background, path + ".png")
+    items = list(_canvas.items)
+    # Each visible turtle where it ended up, in its shape and colours, as a window would show it.
+    for t in _turtles:
+        if not t._visible:
+            continue
+        turn = math.radians(t._heading - 90)
+        pts = [(t._x + t._stretch * (x * math.cos(turn) - y * math.sin(turn)),
+                t._y + t._stretch * (x * math.sin(turn) + y * math.cos(turn))) for x, y in _SHAPES[t._shape]]
+        items.append(["fill", pts, t._fill])
+        items.append(["line", pts + [pts[0]], t._pen, 1.0])
+    _lassodraw.render(items, _canvas.width, _canvas.height, _canvas.background, path + ".png")
 
 @atexit.register
 def _save():
     target = os.environ.get("LASSO_DRAWING")
-    if target and _canvas.items:
+    if target and (_canvas.items or any(t._visible for t in _turtles)):
         _render(target)
