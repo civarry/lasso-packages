@@ -1,7 +1,7 @@
 {
   "lasso": 1,
   "id": "python-runner",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "name": "Run Python",
   "summary": "Runs Python from chat on this Mac, and draws turtle pictures.",
   "author": "Lasso",
@@ -9,7 +9,7 @@
   "icon": {
     "symbol": "chevron.left.forwardslash.chevron.right"
   },
-  "minLasso": "0.21.0",
+  "minLasso": "0.28.0",
   "requires": [
     {
       "command": "python3",
@@ -17,6 +17,29 @@
     }
   ],
   "commands": [
+    {
+      "id": "block",
+      "title": "Run",
+      "symbol": "play",
+      "surfaces": [
+        "code"
+      ],
+      "languages": [
+        "python",
+        "py",
+        "python3"
+      ],
+      "input": [
+        "text"
+      ],
+      "output": "markdown",
+      "run": {
+        "script": {
+          "path": "scripts/run.py",
+          "timeout": 60
+        }
+      }
+    },
     {
       "id": "run",
       "title": "Run Python",
@@ -68,12 +91,28 @@
       "test": {
         "text": "import turtle\nturtle.circle(80)"
       }
+    },
+    {
+      "id": "install",
+      "title": "Install packages",
+      "surfaces": [],
+      "input": [
+        "text"
+      ],
+      "output": "markdown",
+      "run": {
+        "script": {
+          "path": "scripts/install.py",
+          "network": true,
+          "timeout": 240
+        }
+      }
     }
   ],
   "patches": [
     {
       "target": "chat.instructions",
-      "add": "The user can run Python from this chat: typing /run runs the Python code blocks in your last reply on their Mac and shows the output, and /draw shows turtle drawings as a picture. When they ask you to run code, say so instead of saying you can't run code, and put runnable code in one python block."
+      "add": "The user can run Python from this chat: each python code block in your reply has a Run button that runs it on their Mac and shows the output in the block (turtle drawings as a picture), and /run runs your last reply's code. When they ask you to run code, say so instead of saying you can't, and put runnable code in one python block."
     }
   ]
 }

@@ -72,10 +72,85 @@ def clip(text):
 def fence(text):
     return "```text\n" + text.replace("```", "`​``") + "\n```"
 
-def main():
-    data = json.load(sys.stdin)
-    drawing = data.get("command") == "draw"
-    text = data.get("text", "")
+# A code block's Run button (Lasso 0.28): the console, a picture, and buttons for what to do next.
+
+PIP_NAMES = {"cv2": "opencv-python", "PIL": "pillow", "sklearn": "scikit-learn", "yaml": "pyyaml",
+             "bs4": "beautifulsoup4", "dateutil": "python-dateutil", "dotenv": "python-dotenv", "docx": "python-docx",
+             "Crypto": "pycryptodome", "skimage": "scikit-image", "attr": "attrs", "magic": "python-magic"}
+
+def environment_python():
+    """The package's own environment (made by Install), else this Mac's python3."""
+    venv = os.path.join(os.environ.get("HOME", "."), "venv", "bin", "python")
+    return venv if os.path.exists(venv) else sys.executable
+
+def progress(line):
+    print("progress: " + line, file=sys.stderr, flush=True)
+
+def run_block(data):
+    code = data.get("text", "")
+    reply = data.get("reply", "")
+    folder = run_folder()
+    # Files the reply names ("# helper.py" blocks), so this block can import them.
+    for name, body in blocks(reply):
+        if name and body.strip() != code.strip():
+            path = os.path.normpath(os.path.join(folder, name))
+            if path.startswith(folder + os.sep):
+                os.makedirs(os.path.dirname(path), exist_ok=True)
+                with open(path, "w", encoding="utf-8") as f:
+                    f.write(body)
+    main_file = os.path.join(folder, "main.py")
+    with open(main_file, "w", encoding="utf-8") as f:
+        f.write(code)
+    python = environment_python()
+    progress("Initializing environment" if python == sys.executable else "Using the installed packages")
+    drawing = bool(re.search(r"^\s*(import turtle|from turtle import)", code, re.M))
+    before = set(os.listdir(folder))
+    env = dict(os.environ, PYTHONDONTWRITEBYTECODE="1", MPLBACKEND="Agg", PYTHONUNBUFFERED="1")
+    if drawing:
+        env["PYTHONPATH"] = os.path.join(HERE, "headless")
+        env["LASSO_DRAWING"] = os.path.join(folder, "drawing")
+        progress("Drawing with turtle (shown as a picture)")
+    progress("Running code")
+    try:
+        done = subprocess.run([python, "-X", "utf8", main_file], cwd=folder, env=env, stdin=subprocess.DEVNULL,
+                              capture_output=True, text=True, timeout=LIMIT)
+        out, err, status, late = done.stdout, done.stderr, done.returncode, False
+    except subprocess.TimeoutExpired as e:
+        out = e.stdout.decode("utf-8", "replace") if isinstance(e.stdout, bytes) else (e.stdout or "")
+        err = e.stderr.decode("utf-8", "replace") if isinstance(e.stderr, bytes) else (e.stderr or "")
+        status, late = 1, True
+    err = err.replace(folder + os.sep, "")
+    text = clip(out.rstrip("\n"))
+    if err.strip():
+        text = (text + "\n" if text else "") + clip(err.rstrip("\n"))
+    if late:
+        text += f"\nStopped after {LIMIT} s."
+    if not text and status == 0:
+        text = "" if drawing else "(It printed nothing.)"
+    made = sorted(f for f in set(os.listdir(folder)) - before if f not in ("drawing.png",) and not f.startswith("."))
+    if made:
+        text += ("\n" if text else "") + "Made " + ", ".join(made[:10]) + " in " + folder.replace(pwd.getpwuid(os.getuid()).pw_dir, "~", 1)
+    answer = {"console": text, "failed": status != 0}
+    picture = os.path.join(folder, "drawing.png")
+    images = [os.path.join(folder, f) for f in made if f.lower().endswith((".png", ".jpg", ".jpeg"))]
+    if os.path.exists(picture):
+        answer["image"] = picture
+    elif images:
+        answer["image"] = max(images, key=os.path.getmtime)
+    missing = re.search(r"ModuleNotFoundError: No module named '([\w.]+)'", err)
+    if missing:
+        module = missing.group(1).split(".")[0]
+        name = PIP_NAMES.get(module, module)
+        answer["console"] += f"\n{name} isn't installed. Install it in a temporary environment that only Run Python uses?"
+        answer["actions"] = [{"title": f"Install {name}", "command": "install", "input": {"packages": name}, "rerun": True}]
+    elif status != 0 and not late:
+        tail = "\n".join(err.strip().splitlines()[-12:])
+        answer["actions"] = [{"title": "Fix it", "chat": (
+            "This Python code failed when I ran it:\n\n```python\n" + code.strip() + "\n```\n\n```text\n" + tail +
+            "\n```\n\nFix it and give the whole corrected code in one python block.")}]
+    print(json.dumps(answer))
+
+def run_folder():
     # ~/LassoWorkspace/python-runner (Lasso makes it; HOME here is the package's own data folder), or
     # the data folder when the workspace isn't there (lasso-pkg).
     root = os.path.join(pwd.getpwuid(os.getuid()).pw_dir, "LassoWorkspace", "python-runner")
@@ -86,7 +161,16 @@ def main():
     while os.path.exists(folder):
         folder, n = os.path.join(root, f"{stamp}-{n}"), n + 1
     os.makedirs(folder)
-    folder = os.path.realpath(folder)
+    return os.path.realpath(folder)
+
+def main():
+    data = json.load(sys.stdin)
+    if data.get("command") == "block":
+        run_block(data)
+        return
+    drawing = data.get("command") == "draw"
+    text = data.get("text", "")
+    folder = run_folder()
     typed = re.sub(r"^\s*/(run|draw)\b", "", text).strip()
     if looks_like_words(typed):
         os.rmdir(folder)
@@ -104,7 +188,7 @@ def main():
         env["LASSO_DRAWING"] = os.path.join(folder, "drawing")
     started = time.monotonic()
     try:
-        done = subprocess.run([sys.executable, "-X", "utf8", path], cwd=folder, env=env, stdin=subprocess.DEVNULL,
+        done = subprocess.run([environment_python(), "-X", "utf8", path], cwd=folder, env=env, stdin=subprocess.DEVNULL,
                               capture_output=True, text=True, timeout=LIMIT)
         out, err, code, late = done.stdout, done.stderr, done.returncode, False
     except subprocess.TimeoutExpired as e:
