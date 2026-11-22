@@ -241,7 +241,8 @@ class Font:
         if not self.data:
             return
         scale = size / self.units
-        glyphs = [self.cmap.get(ord(ch), 0) for ch in text]
+        # A character the font doesn't have (an emoji) is left out, not drawn as a box.
+        glyphs = [g for g in (self.cmap.get(ord(ch), 0) for ch in text) if g]
         width = sum(self.advance(g) for g in glyphs) * scale
         x -= width / 2 if align == "center" else width if align == "right" else 0
         contours = []
