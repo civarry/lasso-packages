@@ -1,7 +1,7 @@
 {
   "lasso": 1,
   "id": "notes-search",
-  "version": "1.3.0",
+  "version": "1.5.0",
   "name": "My notes",
   "summary": "Lets chat answer from a folder of your Markdown notes.",
   "author": "Lasso",
@@ -32,7 +32,21 @@
       },
       "test": {
         "query": "meeting"
+      },
+      "hook": "source/1",
+      "ranks": true
+    },
+    {
+      "id": "describe",
+      "title": "What's in it",
+      "hook": "describe/1",
+      "run": {
+        "script": {
+          "path": "scripts/search.py",
+          "timeout": 10
+        }
       }
     }
-  ]
+  ],
+  "minLasso": "0.27.0"
 }
