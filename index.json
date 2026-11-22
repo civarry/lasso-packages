@@ -57,13 +57,14 @@
         "hosts" : [
 
         ],
+        "patches" : true,
         "script" : true
       },
-      "sha256" : "4bf38c8cec380c1e356f85144b1c79726d11707f6e571ec429d3901c9b88bafe",
+      "sha256" : "23f6533746bb99a54899978a8f03d43ec7fd2b09f6eb2eaa8254e16fb77d8256",
       "summary" : "Runs Python from chat on this Mac, and draws turtle pictures.",
       "symbol" : "chevron.left.forwardslash.chevron.right",
-      "url" : "https:\/\/raw.githubusercontent.com\/civarry\/lasso-packages\/main\/dist\/python-runner-1.0.0.lassopkg",
-      "version" : "1.0.0"
+      "url" : "https:\/\/raw.githubusercontent.com\/civarry\/lasso-packages\/main\/dist\/python-runner-1.1.0.lassopkg",
+      "version" : "1.1.0"
     },
     {
       "author" : "Lasso",
