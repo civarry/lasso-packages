@@ -20,10 +20,10 @@
         ],
         "script" : true
       },
-      "sha256" : "77d3f84df82ba09f664ce789a73442ba7ce80cabf15dd8fdcd46fd320d5bd722",
+      "sha256" : "7a72787ed6263dfe45a8eb34e5af563685043ed7ba48e29fb12d00614c9b4977",
       "summary" : "Lets chat answer from a folder of your Markdown notes.",
-      "url" : "https:\/\/raw.githubusercontent.com\/civarry\/lasso-packages\/main\/dist\/notes-search-1.1.0.lassopkg",
-      "version" : "1.1.0"
+      "url" : "https:\/\/raw.githubusercontent.com\/civarry\/lasso-packages\/main\/dist\/notes-search-1.2.0.lassopkg",
+      "version" : "1.2.0"
     },
     {
       "author" : "Lasso",
